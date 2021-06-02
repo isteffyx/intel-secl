@@ -8,15 +8,15 @@ package hosttrust
 import (
 	"github.com/google/uuid"
 	lru "github.com/hashicorp/golang-lru"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/saml"
-	flavorVerifier "github.com/intel-secl/intel-secl/v3/pkg/lib/verifier"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
-	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/domain"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/domain/models"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/utils"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/flavor/common"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/host-connector/types"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/saml"
+	flavorVerifier "github.com/intel-secl/intel-secl/v4/pkg/lib/verifier"
+	"github.com/intel-secl/intel-secl/v4/pkg/model/hvs"
+	taModel "github.com/intel-secl/intel-secl/v4/pkg/model/ta"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -61,7 +61,7 @@ func getTrustPcrListReport(hostInfo taModel.HostInfo, report *hvs.TrustReport) [
 
 	for _, result := range report.Results {
 		if result.Rule.ExpectedPcr != nil {
-			pcrIndex := int(result.Rule.ExpectedPcr.Index)
+			pcrIndex := int(result.Rule.ExpectedPcr.Pcr.Index)
 			if _, ok := trustPcrMap[pcrIndex]; !ok {
 				trustPcrMap[pcrIndex] = struct{}{}
 				trustPcrList = append(trustPcrList, pcrIndex)
@@ -96,7 +96,7 @@ func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newDat
 		// check if the PCR Values are unchanged.
 		if ok {
 			cachedQuote := cacheEntry.(*models.QuoteReportCache)
-			if cachedQuote.QuoteDigest != "" && hostData.QuoteDigest != cachedQuote.QuoteDigest {
+			if cachedQuote.QuoteDigest != "" && hostData.QuoteDigest == cachedQuote.QuoteDigest {
 				// retrieve the stored report
 				log.Debugf("hosttrust/verifier:Verify() Quote values matches cached value for host %s - skipping flavor verification", hostId.String())
 				if report, err := v.refreshTrustReport(hostId, cachedQuote); err == nil {

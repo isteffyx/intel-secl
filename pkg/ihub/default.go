@@ -7,15 +7,14 @@ package ihub
 import (
 	"os"
 
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/config"
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
-	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/config"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/constants"
+	commConfig "github.com/intel-secl/intel-secl/v4/pkg/lib/common/config"
 	"github.com/spf13/viper"
 )
 
 // This func sets the default values for viper keys
 func init() {
-	viper.SetDefault("attestation-type", constants.DefaultAttestationType)
 	viper.SetDefault("poll-interval-minutes", constants.PollingIntervalMinutes)
 
 	//Set default values for TLS
@@ -48,8 +47,8 @@ func defaultConfig() *config.Configuration {
 			SANList:    viper.GetString("tls-san-list"),
 		},
 		AttestationService: config.AttestationConfig{
-			AttestationType: viper.GetString("attestation-type"),
-			AttestationURL:  viper.GetString("attestation-service-url"),
+			HVSBaseURL:  viper.GetString("hvs-base-url"),
+			SHVSBaseURL: viper.GetString("shvs-base-url"),
 		},
 		Log: commConfig.LogConfig{
 			MaxLength:    viper.GetInt("log-max-length"),

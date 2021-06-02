@@ -156,16 +156,20 @@ main() {
     OLD_EXEC_NAME=$NEW_EXEC_NAME
   fi
 
-  COMPONENT_VERSION=`$INSTALLED_EXEC_PATH --version | grep Version | cut -d' ' -f2 | cut -d'-' -f1`
+  INSTALLED_COMPONENT_VERSION=`$INSTALLED_EXEC_PATH --version  2> /dev/null`
+  COMPONENT_VERSION=`printf "$INSTALLED_COMPONENT_VERSION" | grep Version | cut -d' ' -f2 | cut -d'-' -f1`
   if [ -z "$COMPONENT_VERSION" ]; then
-    echo "Failed to read the component version, exiting."
-    exit 1
+    COMPONENT_VERSION=`$INSTALLED_EXEC_PATH version | grep Version | cut -d' ' -f2 | cut -d'-' -f1`
+    if [ -z "$COMPONENT_VERSION" ]; then
+      echo "Failed to read the component version, exiting."
+      exit 1
+    fi
   fi
 
   if [ "$UPGRADE_VERSION" = "$COMPONENT_VERSION" ]; then
     echo "Installed component is already up to date, no need of upgrade"
     echo "Exiting upgrade"
-    exit 0
+    exit 125
   fi
 
   UPGRADE_MANIFEST="./manifest/supported_versions"
@@ -206,11 +210,11 @@ main() {
   cp -af ${CONFIG_PATH}/* ${BACKUP_DIR}/config
   exit_on_error true "Failed to take backup of configuration, exiting."
 
+  check_service_stop_status
+
   echo "Migrating Configuration"
   ./config_upgrade.sh $COMPONENT_VERSION ${BACKUP_DIR}/config
   exit_on_error false "Failed to upgrade the configuration to the latest."
-
-  check_service_stop_status
 
   echo "Replacing executable to the latest version"
   cp -f ${NEW_EXEC_NAME} ${INSTALLED_EXEC_PATH}

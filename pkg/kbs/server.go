@@ -16,13 +16,13 @@ import (
 	"time"
 
 	"github.com/gorilla/handlers"
-	"github.com/intel-secl/intel-secl/v3/pkg/kbs/constants"
-	"github.com/intel-secl/intel-secl/v3/pkg/kbs/domain"
-	"github.com/intel-secl/intel-secl/v3/pkg/kbs/keymanager"
-	"github.com/intel-secl/intel-secl/v3/pkg/kbs/router"
-	"github.com/intel-secl/intel-secl/v3/pkg/kbs/utils"
-	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
-	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
+	"github.com/intel-secl/intel-secl/v4/pkg/kbs/constants"
+	"github.com/intel-secl/intel-secl/v4/pkg/kbs/domain"
+	"github.com/intel-secl/intel-secl/v4/pkg/kbs/keymanager"
+	"github.com/intel-secl/intel-secl/v4/pkg/kbs/router"
+	"github.com/intel-secl/intel-secl/v4/pkg/kbs/utils"
+	commLog "github.com/intel-secl/intel-secl/v4/pkg/lib/common/log"
+	commLogMsg "github.com/intel-secl/intel-secl/v4/pkg/lib/common/log/message"
 	"github.com/pkg/errors"
 )
 
@@ -59,7 +59,7 @@ func (app *App) startServer() error {
 
 	defaultLog.Info("kbs/server:startServer() Starting server")
 	tlsConfig := &tls.Config{
-		MinVersion: tls.VersionTLS12,
+		MinVersion: tls.VersionTLS13,
 		CipherSuites: []uint16{tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,

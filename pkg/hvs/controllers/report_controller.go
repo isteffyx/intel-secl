@@ -8,16 +8,16 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	consts "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/constants"
-	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
-	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+	consts "github.com/intel-secl/intel-secl/v4/pkg/hvs/constants"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/domain"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/domain/models"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/utils"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/common/constants"
+	commErr "github.com/intel-secl/intel-secl/v4/pkg/lib/common/err"
+	commLogMsg "github.com/intel-secl/intel-secl/v4/pkg/lib/common/log/message"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/common/validation"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/flavor/common"
+	"github.com/intel-secl/intel-secl/v4/pkg/model/hvs"
 	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
@@ -94,7 +94,7 @@ func (controller ReportController) createReport(rsCriteria hvs.ReportCreateReque
 	}
 	//Always only one record is returned for the particular criteria
 	hostId := hosts[0].Id
-	hvsReport, err := controller.HTManager.VerifyHost(hostId, true, false)
+	hvsReport, err := controller.HTManager.VerifyHost(hostId, true, true)
 	if err != nil {
 		defaultLog.WithError(err).Errorf("controllers/report_controller:createReport() Failed to create a trust report, flavor verification failed")
 	} else if hvsReport == nil {

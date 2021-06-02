@@ -5,9 +5,9 @@
 package authservice
 
 import (
-	"github.com/intel-secl/intel-secl/v3/pkg/authservice/config"
-	"github.com/intel-secl/intel-secl/v3/pkg/authservice/constants"
-	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
+	"github.com/intel-secl/intel-secl/v4/pkg/authservice/config"
+	"github.com/intel-secl/intel-secl/v4/pkg/authservice/constants"
+	commConfig "github.com/intel-secl/intel-secl/v4/pkg/lib/common/config"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -52,6 +52,11 @@ func init() {
 	viper.SetDefault("auth-defender-interval-mins", constants.DefaultAuthDefendIntervalMins)
 	viper.SetDefault("auth-defender-lockout-duration-mins", constants.DefaultAuthDefendLockoutMins)
 
+	viper.SetDefault("create-credentials", false)
+	viper.SetDefault("nats-operator-name", "ISecL-operator")
+	viper.SetDefault("nats-account-name", "ISecL-account")
+	viper.SetDefault("nats-hvs-user-name", "ISecL-HVS")
+
 }
 
 func defaultConfig() *config.Configuration {
@@ -80,6 +85,11 @@ func defaultConfig() *config.Configuration {
 			MaxAttempts:         viper.GetInt("auth-defender-max-attempts"),
 			IntervalMins:        viper.GetInt("auth-defender-interval-mins"),
 			LockoutDurationMins: viper.GetInt("auth-defender-lockout-duration-mins"),
+		},
+		Nats: config.NatsConfig{
+			OperatorName: viper.GetString("nats-operator-name"),
+			AccountName:  viper.GetString("nats-account-name"),
+			HvsUserName:  viper.GetString("nats-hvs-user-name"),
 		},
 	}
 }

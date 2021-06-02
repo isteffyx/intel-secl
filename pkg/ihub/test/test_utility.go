@@ -15,8 +15,8 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	openstackClient "github.com/intel-secl/intel-secl/v3/pkg/clients/openstack"
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/config"
+	openstackClient "github.com/intel-secl/intel-secl/v4/pkg/clients/openstack"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/config"
 )
 
 //IhubServiceUserName sample user name
@@ -364,8 +364,8 @@ func SetupMockK8sConfiguration(t *testing.T, port string) *config.Configuration 
 	c.AASApiUrl = "http://localhost" + port + "/aas"
 	c.IHUB.Username = "admin@hub"
 	c.IHUB.Password = "hubAdminPass"
-	c.AttestationService.AttestationType = "HVS"
-	c.AttestationService.AttestationURL = "http://localhost" + port + "/mtwilson/v2/"
+	c.AttestationService.HVSBaseURL = "http://localhost" + port + "/mtwilson/v2/"
+	c.AttestationService.SHVSBaseURL = "http://localhost" + port + "/sgx-hvs/v2/"
 	c.Endpoint.Type = "KUBERNETES"
 	c.Endpoint.URL = "http://localhost" + port + "/"
 	c.Endpoint.CRDName = "custom-isecl"

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 COMPONENT_NAME=authservice
+# Upgrade if component is already installed
 if command -v $COMPONENT_NAME &>/dev/null; then
   echo "$COMPONENT_NAME is installed, proceeding with the upgrade"
   ./${COMPONENT_NAME}_upgrade.sh
@@ -54,8 +55,10 @@ CONFIG_PATH=/etc/$COMPONENT_NAME/
 CERTS_PATH=$CONFIG_PATH/certs
 CERTDIR_TOKENSIGN=$CERTS_PATH/tokensign
 CERTDIR_TRUSTEDJWTCAS=$CERTS_PATH/trustedca
+NATS_DIR_PATH=$CONFIG_PATH/nats
+NATS_NKEYS_DIR_PATH=$NATS_DIR_PATH/nkeys
 
-for directory in $BIN_PATH $DB_SCRIPT_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $CERTDIR_TOKENSIGN $CERTDIR_TRUSTEDJWTCAS; do
+for directory in $BIN_PATH $DB_SCRIPT_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $CERTDIR_TOKENSIGN $CERTDIR_TRUSTEDJWTCAS $NATS_DIR_PATH $NATS_NKEYS_DIR_PATH; do
   # mkdir -p will return 0 if directory exists or is a symlink to an existing directory or directory and parents can be created
   mkdir -p $directory
   if [ $? -ne 0 ]; then
@@ -66,15 +69,14 @@ for directory in $BIN_PATH $DB_SCRIPT_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $C
   chmod 700 $directory
 done
 
-
 cp $COMPONENT_NAME $BIN_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $BIN_PATH/*
 chmod 700 $BIN_PATH/*
 ln -sfT $BIN_PATH/$COMPONENT_NAME /usr/bin/$COMPONENT_NAME
 
 cp db_rotation.sql $DB_SCRIPT_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $DB_SCRIPT_PATH/*
 
-# make log files world readable
-chmod 744 $LOG_PATH
+# log file permission change
+chmod 740 $LOG_PATH
 
 # Install systemd script
 cp authservice.service $PRODUCT_HOME && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME/authservice.service && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME

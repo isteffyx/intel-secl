@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
-	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/domain/models"
+	cf "github.com/intel-secl/intel-secl/v4/pkg/lib/flavor/common"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/host-connector/types"
+	"github.com/intel-secl/intel-secl/v4/pkg/model/hvs"
 )
 
 type (
@@ -77,6 +77,15 @@ type (
 		Retrieve(uuid.UUID) (*hvs.TpmEndorsement, error)
 		Search(*models.TpmEndorsementFilterCriteria) (*hvs.TpmEndorsementCollection, error)
 		Delete(uuid.UUID) error
+	}
+
+	// FlavorTemplateStore will do the DB operations related to flavor template CRUD.
+	FlavorTemplateStore interface {
+		Create(*hvs.FlavorTemplate) (*hvs.FlavorTemplate, error)
+		Retrieve(uuid.UUID, bool) (*hvs.FlavorTemplate, error)
+		Search(*models.FlavorTemplateFilterCriteria) ([]hvs.FlavorTemplate, error)
+		Delete(uuid.UUID) error
+		Recover([]string) error
 	}
 
 	// HostStatusStore specifies the DB operations that must be implemented for the Host Status API

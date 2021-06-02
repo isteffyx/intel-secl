@@ -5,11 +5,11 @@
 package config
 
 import (
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/constants"
 	log "github.com/sirupsen/logrus"
 	"os"
 
-	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
+	commConfig "github.com/intel-secl/intel-secl/v4/pkg/lib/common/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
@@ -30,8 +30,8 @@ type Configuration struct {
 }
 
 type AttestationConfig struct {
-	AttestationURL  string `yaml:"attestation-url" mapstructure:"attestation-url"`
-	AttestationType string `yaml:"attestation-type" mapstructure:"attestation-type"`
+	HVSBaseURL  string `yaml:"hvs-base-url" mapstructure:"hvs-base-url"`
+	SHVSBaseURL string `yaml:"shvs-base-url" mapstructure:"shvs-base-url"`
 }
 
 type Endpoint struct {

@@ -6,10 +6,10 @@ package ihub
 
 import (
 	"encoding/pem"
-	"github.com/intel-secl/intel-secl/v3/pkg/clients/k8s"
-	"github.com/intel-secl/intel-secl/v3/pkg/clients/openstack"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
-	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
+	"github.com/intel-secl/intel-secl/v4/pkg/clients/k8s"
+	"github.com/intel-secl/intel-secl/v4/pkg/clients/openstack"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/common/crypt"
+	commLogMsg "github.com/intel-secl/intel-secl/v4/pkg/lib/common/log/message"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -17,12 +17,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/k8splugin"
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/openstackplugin"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/constants"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/k8splugin"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/openstackplugin"
 	"github.com/pkg/errors"
 
-	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
+	commLog "github.com/intel-secl/intel-secl/v4/pkg/lib/common/log"
 )
 
 var log = commLog.GetDefaultLogger()
@@ -47,6 +47,13 @@ func (app *App) startDaemon() error {
 
 	var k k8splugin.KubernetesDetails
 	var o openstackplugin.OpenstackDetails
+
+	attestationHVSURL := configuration.AttestationService.HVSBaseURL
+	attestationSHVSURL := configuration.AttestationService.SHVSBaseURL
+
+	if attestationHVSURL == "" && attestationSHVSURL == "" {
+		return errors.New("startService:startDaemon() Neither HVS nor SHVS Attestation URL are defined")
+	}
 
 	if configuration.Endpoint.Type == constants.OpenStackTenant {
 
@@ -75,12 +82,14 @@ func (app *App) startDaemon() error {
 
 		o.TrustedCAsStoreDir = app.configDir() + constants.TrustedCAsStoreDir
 		if _, err := os.Stat(o.TrustedCAsStoreDir); err != nil {
-			return errors.Wrap(err, "startService:startDaemon() Error in initializing the OpenStack client")
+			return errors.Wrap(err, "startService:startDaemon(): TrustedCA Certificate Missing, Error in initializing the OpenStack client")
 		}
 
-		o.SamlCertFilePath = app.configDir() + constants.SamlCertFilePath
-		if _, err := os.Stat(o.SamlCertFilePath); err != nil && configuration.AttestationService.AttestationType == constants.DefaultAttestationType {
-			return errors.Wrap(err, "startService:startDaemon() Error in initializing the OpenStack client")
+		if attestationHVSURL != "" {
+			o.SamlCertFilePath = app.configDir() + constants.SamlCertFilePath
+			if _, err := os.Stat(o.SamlCertFilePath); err != nil {
+				return errors.Wrap(err, "startService:startDaemon(): Saml Certificate Missing, Error in initializing the OpenStack client")
+			}
 		}
 
 	} else if configuration.Endpoint.Type == constants.K8sTenant {
@@ -120,12 +129,14 @@ func (app *App) startDaemon() error {
 
 		k.TrustedCAsStoreDir = app.configDir() + constants.TrustedCAsStoreDir
 		if _, err := os.Stat(k.TrustedCAsStoreDir); err != nil {
-			return errors.Wrap(err, "startService:startDaemon() Error in initializing the Kubernetes client")
+			return errors.Wrap(err, "startService:startDaemon(): TrustedCA Certificate Missing, Error in initializing the Kubernetes client")
 		}
 
-		k.SamlCertFilePath = app.configDir() + constants.SamlCertFilePath
-		if _, err := os.Stat(k.SamlCertFilePath); err != nil && configuration.AttestationService.AttestationType == constants.DefaultAttestationType {
-			return errors.Wrap(err, "startService:startDaemon() Error in initializing the Kubernetes client")
+		if attestationHVSURL != "" {
+			k.SamlCertFilePath = app.configDir() + constants.SamlCertFilePath
+			if _, err := os.Stat(k.SamlCertFilePath); err != nil {
+				return errors.Wrap(err, "startService:startDaemon(): Saml Certificate Missing, Error in initializing the Kubernetes client")
+			}
 		}
 
 	} else {

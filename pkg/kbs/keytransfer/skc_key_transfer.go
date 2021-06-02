@@ -20,14 +20,14 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/intel-secl/intel-secl/v3/pkg/clients"
-	aasClient "github.com/intel-secl/intel-secl/v3/pkg/clients/aas"
-	"github.com/intel-secl/intel-secl/v3/pkg/kbs/config"
-	"github.com/intel-secl/intel-secl/v3/pkg/kbs/constants"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
-	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/kbs"
+	"github.com/intel-secl/intel-secl/v4/pkg/clients"
+	aasClient "github.com/intel-secl/intel-secl/v4/pkg/clients/aas"
+	"github.com/intel-secl/intel-secl/v4/pkg/kbs/config"
+	"github.com/intel-secl/intel-secl/v4/pkg/kbs/constants"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/common/crypt"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/common/log"
+	commLogMsg "github.com/intel-secl/intel-secl/v4/pkg/lib/common/log/message"
+	"github.com/intel-secl/intel-secl/v4/pkg/model/kbs"
 	"github.com/pkg/errors"
 	"time"
 )
@@ -382,7 +382,6 @@ func (keyInfo *KeyDetails) IsValidSession(stmLabel string) (validSession, validS
 				if keyInfo.validateSgxEnclaveIssuer(attributes.EnclaveIssuer) &&
 					keyInfo.validateSgxEnclaveIssuerProdId(attributes.EnclaveIssuerProductID) &&
 					keyInfo.validateSgxEnclaveIssuerExtProdId(attributes.EnclaveIssuerExtendedProductID) &&
-					keyInfo.validateSgxEnclaveMeasurement(attributes.EnclaveMeasurement) &&
 					keyInfo.validateSgxConfigId(attributes.ConfigID) &&
 					keyInfo.validateSgxIsvSvn(attributes.IsvSvn) &&
 					keyInfo.validateSgxConfigIdSvn(attributes.ConfigSvn) {

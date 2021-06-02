@@ -11,11 +11,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/intel-secl/intel-secl/v3/pkg/clients/vs"
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/config"
-	testutility "github.com/intel-secl/intel-secl/v3/pkg/ihub/test"
-	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/saml"
+	"github.com/intel-secl/intel-secl/v4/pkg/clients/vs"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/config"
+	testutility "github.com/intel-secl/intel-secl/v4/pkg/ihub/test"
+	commConfig "github.com/intel-secl/intel-secl/v4/pkg/lib/common/config"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/saml"
 )
 
 var sampleSamlCertPath = testutility.SampleSamlCertPath
@@ -66,7 +66,7 @@ func TestGetHostReports(t *testing.T) {
 				c: &config.Configuration{
 					AASApiUrl: "http://localhost" + portString + "/aas",
 					AttestationService: config.AttestationConfig{
-						AttestationType: "HVS", AttestationURL: "http://localhost" + portString + "/mtwilson/v2/invalid",
+						HVSBaseURL: "http://localhost" + portString + "/mtwilson/v2/invalid",
 					},
 					Endpoint: config.Endpoint{
 						Type:     "OPENSTACK",
@@ -90,7 +90,7 @@ func TestGetHostReports(t *testing.T) {
 				c: &config.Configuration{
 					AASApiUrl: "http://localhost" + portString + "/aas",
 					AttestationService: config.AttestationConfig{
-						AttestationType: "HVS", AttestationURL: "http://localhost" + portString + "/mtwilson/v2/",
+						HVSBaseURL: "http://localhost" + portString + "/mtwilson/v2/",
 					},
 					Endpoint: config.Endpoint{
 						Type:     "OPENSTACK",
@@ -116,7 +116,7 @@ func TestGetHostReports(t *testing.T) {
 				c: &config.Configuration{
 					AASApiUrl: "http://localhost" + portString + "/aas",
 					AttestationService: config.AttestationConfig{
-						AttestationType: "HVS", AttestationURL: "mtwilson/v2"},
+						HVSBaseURL: "mtwilson/v2"},
 					Endpoint: config.Endpoint{
 						Type: "OPENSTACK",
 					},
@@ -177,8 +177,7 @@ func TestGetCaCerts(t *testing.T) {
 						Password: "hubAdminPass",
 					},
 					AttestationService: config.AttestationConfig{
-						AttestationType: "HVS",
-						AttestationURL:  "",
+						HVSBaseURL: "",
 					},
 				},
 			},
@@ -196,8 +195,7 @@ func TestGetCaCerts(t *testing.T) {
 						Password: "hubAdminPass",
 					},
 					AttestationService: config.AttestationConfig{
-						AttestationType: "HVS",
-						AttestationURL:  "http://localhost" + portString + "/mtwilson/v2/",
+						HVSBaseURL: "http://localhost" + portString + "/mtwilson/v2/",
 					},
 				},
 			},
@@ -282,8 +280,7 @@ func Test_initializeClient(t *testing.T) {
 						Password: "hubAdminPass",
 					},
 					AttestationService: config.AttestationConfig{
-						AttestationType: "HVS",
-						AttestationURL:  "http://localhost" + portString + "/mtwilson/v2",
+						HVSBaseURL: "http://localhost" + portString + "/mtwilson/v2",
 					},
 				},
 			},

@@ -8,13 +8,13 @@ package hosttrust
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models/taskstage"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/chnlworkq"
-	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/domain"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/domain/models"
+	"github.com/intel-secl/intel-secl/v4/pkg/hvs/domain/models/taskstage"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/common/chnlworkq"
+	commLog "github.com/intel-secl/intel-secl/v4/pkg/lib/common/log"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/host-connector/types"
+	"github.com/intel-secl/intel-secl/v4/pkg/model/hvs"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/syncmap"
 	"strconv"
@@ -240,10 +240,10 @@ func (svc *Service) VerifyHostsAsync(hostIds []uuid.UUID, fetchHostData, preferH
 			} else if (!preferHashMatch && vtj.preferHashMatch) || shouldCancelPrevJob(fetchHostData, vtj.getNewHostData) {
 				defaultLog.Debugf("hosttrust/manager:VerifyHostsAsync() New job does not prefer hash match %v. Updating host entry", hid)
 				vtj.cancelFn()
-				updates[hid] = true
+				updates[hid] = preferHashMatch
 			}
 		} else {
-			adds[hid] = true
+			adds[hid] = preferHashMatch
 			defaultLog.Debugf("hosttrust/manager:VerifyHostsAsync() Appends for %v", hid)
 		}
 	}
@@ -362,32 +362,31 @@ func (svc *Service) persistToStore(additions, updates map[uuid.UUID]bool, fetchH
 		var existingHTVJob *verifyTrustJob
 		if htvJobExists {
 			existingHTVJob = vt.(*verifyTrustJob)
-		}
 
-		// check if existing map has fetchHostData == true - then force update to true
-		currRec, err := svc.prstStor.Retrieve(existingHTVJob.storPersistId)
-		defaultLog.Debugf("hosttrust/manager:updateToStore() Existing Queue entry %v for host %v", currRec, hid)
-		if err != nil {
-			defaultLog.Errorf("hosttrust/manager:updateToStore() Failed to fetch existing queue store entryfor"+
-				" host %s | %s", hid.String(), err.Error())
-			return err
-		}
-		currRec.Params = strRec.Params
-		defaultLog.Debugf("hosttrust/manager:updateToStore() Updating FVQueue entry %v for host %v",
-			existingHTVJob.storPersistId, hid)
-		if err = svc.prstStor.Update(currRec); err != nil {
-			defaultLog.Errorf("hosttrust/manager:updateToStore() Queue store update failed for host %s - %s",
-				hid.String(), err.Error())
-			return err
-		}
+			currRec, err := svc.prstStor.Retrieve(existingHTVJob.storPersistId)
+			defaultLog.Debugf("hosttrust/manager:updateToStore() Existing Queue entry %v for host %v", currRec, hid)
+			if err != nil {
+				defaultLog.Errorf("hosttrust/manager:updateToStore() Failed to fetch existing queue store entryfor"+
+					" host %s | %s", hid.String(), err.Error())
+				return err
+			}
+			currRec.Params = strRec.Params
+			defaultLog.Debugf("hosttrust/manager:updateToStore() Updating FVQueue entry %v for host %v",
+				existingHTVJob.storPersistId, hid)
+			if err = svc.prstStor.Update(currRec); err != nil {
+				defaultLog.Errorf("hosttrust/manager:updateToStore() Queue store update failed for host %s - %s",
+					hid.String(), err.Error())
+				return err
+			}
 
-		// update work map
-		ctx, cancel := context.WithCancel(context.Background())
-		existingHTVJob.ctx = ctx
-		existingHTVJob.cancelFn = cancel
-		existingHTVJob.getNewHostData = fetchHostData
-		existingHTVJob.preferHashMatch = preferHashMatch
-		svc.hosts.Store(hid, existingHTVJob)
+			// update work map
+			ctx, cancel := context.WithCancel(context.Background())
+			existingHTVJob.ctx = ctx
+			existingHTVJob.cancelFn = cancel
+			existingHTVJob.getNewHostData = fetchHostData
+			existingHTVJob.preferHashMatch = preferHashMatch
+			svc.hosts.Store(hid, existingHTVJob)
+		}
 
 		return nil
 	}

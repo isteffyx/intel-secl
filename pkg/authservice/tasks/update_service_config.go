@@ -7,9 +7,9 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/intel-secl/intel-secl/v3/pkg/authservice/config"
-	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/setup"
+	"github.com/intel-secl/intel-secl/v4/pkg/authservice/config"
+	commConfig "github.com/intel-secl/intel-secl/v4/pkg/lib/common/config"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/common/setup"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"io"
@@ -43,8 +43,8 @@ var envHelp = map[string]string{
 }
 
 func (uc UpdateServiceConfig) Run() error {
-	defaultLog.Trace("tasks/update_config:Run() Entering")
-	defer defaultLog.Trace("tasks/update_config:Run() Leaving")
+	defaultLog.Trace("tasks/update_service_config:Run() Entering")
+	defer defaultLog.Trace("tasks/update_service_config:Run() Leaving")
 	(*uc.AppConfig).Log = commConfig.LogConfig{
 		MaxLength:    viper.GetInt("log-max-length"),
 		EnableStdout: viper.GetBool("log-enable-stdout"),

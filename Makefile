@@ -9,23 +9,37 @@ ifeq ($(PROXY_EXISTS),1)
 	DOCKER_PROXY_FLAGS = --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy}
 endif
 
-TARGETS = cms kbs ihub hvs authservice wpm
+TARGETS = cms kbs ihub hvs authservice wpm flavorgen
 K8S_TARGETS = cms kbs ihub hvs authservice
 
 $(TARGETS):
 	cd cmd/$@ && env GOOS=linux GOSUMDB=off GOPROXY=direct \
-		go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/$@/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/$@/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/$@/version.GitHash=$(GITCOMMIT)" -o $@
+		go build -ldflags "-X github.com/intel-secl/intel-secl/v4/pkg/$@/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v4/pkg/$@/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v4/pkg/$@/version.GitHash=$(GITCOMMIT)" -o $@
 
 kbs:
 	mkdir -p installer
 	cp /usr/local/lib/libkmip.so.0.2 installer/libkmip.so.0.2
 	cd cmd/kbs && env CGO_CFLAGS_ALLOW="-f.*" GOOS=linux GOSUMDB=off GOPROXY=direct \
 		go build -gcflags=all="-N -l" \
-		-ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/kbs/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/kbs/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/kbs/version.GitHash=$(GITCOMMIT)" -o kbs
+		-ldflags "-X github.com/intel-secl/intel-secl/v4/pkg/kbs/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v4/pkg/kbs/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v4/pkg/kbs/version.GitHash=$(GITCOMMIT)" -o kbs
 
+flavorgen-installer:
+	mkdir -p installer
+	cp -r build/linux/hvs/schema installer/
+	cp build/linux/flavorgen/install.sh installer/
+	chmod +x installer/install.sh
+	cd cmd/flavorgen && env CGO_CFLAGS_ALLOW="-f.*" GOOS=linux GOSUMDB=off GOPROXY=direct \
+		go build -ldflags "-X github.com/intel-secl/intel-secl/v4/pkg/flavorgen/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v4/pkg/flavorgen/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v4/pkg/flavorgen/version.GitHash=$(GITCOMMIT)" -o flavorgen
+	cp cmd/flavorgen/flavorgen installer/flavorgen
+	makeself installer deployments/installer/flavorgen-$(VERSION).bin "flavorgen $(VERSION)" ./install.sh
+	rm -rf installer
+
+flavorconvert-installer:
+	cd upgrades/hvs/build && make all
+	
 %-installer: %
 	mkdir -p installer
-	cp build/linux/$*/* installer/
+	cp -r build/linux/$*/* installer/
 	cd pkg/lib/common/upgrades && env GOOS=linux GOSUMDB=off GOPROXY=direct go build -o config-upgrade
 	cp pkg/lib/common/upgrades/config-upgrade installer/
 	cp pkg/lib/common/upgrades/*.sh installer/
@@ -72,9 +86,13 @@ aas-manager:
 wpm-docker-installer: wpm
 	mkdir -p installer
 	cp build/linux/wpm/* installer/
-	chmod +x installer/install.sh
-	chmod +x installer/build-secure-docker-daemon.sh
-	chmod +x installer/uninstall-secure-docker-daemon.sh
+	cd pkg/lib/common/upgrades && env GOOS=linux GOSUMDB=off GOPROXY=direct go build -o config-upgrade
+	cp pkg/lib/common/upgrades/config-upgrade installer/
+	cp pkg/lib/common/upgrades/*.sh installer/
+	cp -a upgrades/manifest/ installer/
+	cp -a upgrades/wpm/* installer/
+	mv installer/build/* installer/
+	chmod +x installer/*.sh
 	installer/build-secure-docker-daemon.sh
 	cp -rf secure-docker-daemon/out installer/docker-daemon
 	rm -rf secure-docker-daemon

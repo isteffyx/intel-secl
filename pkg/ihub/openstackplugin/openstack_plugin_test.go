@@ -15,11 +15,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/intel-secl/intel-secl/v3/pkg/clients/openstack"
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/config"
-	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
-	testutility "github.com/intel-secl/intel-secl/v3/pkg/ihub/test"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/saml"
+	"github.com/intel-secl/intel-secl/v4/pkg/clients/openstack"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/config"
+	"github.com/intel-secl/intel-secl/v4/pkg/ihub/constants"
+	testutility "github.com/intel-secl/intel-secl/v4/pkg/ihub/test"
+	"github.com/intel-secl/intel-secl/v4/pkg/lib/saml"
 	"github.com/pkg/errors"
 )
 
@@ -49,7 +49,7 @@ func TestGetHostsFromOpenStack(t *testing.T) {
 	configuration.AASApiUrl = "http://localhost" + port + "/aas"
 	configuration.IHUB.Username = "admin@hub"
 	configuration.IHUB.Password = "hubAdminPass"
-	configuration.AttestationService.AttestationURL = "http://localhost" + port + "/mtwilson/v2"
+	configuration.AttestationService.HVSBaseURL = "http://localhost" + port + "/mtwilson/v2"
 
 	authURL := configuration.Endpoint.AuthURL
 	apiURL := configuration.Endpoint.URL
@@ -120,7 +120,7 @@ func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.
 	osurl = fmt.Sprintf(osurl, strings.ToLower(h))
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			MinVersion:         tls.VersionTLS12,
+			MinVersion:         tls.VersionTLS13,
 			InsecureSkipVerify: true}, // As this is test code
 	}
 	client := &http.Client{Transport: tr}
@@ -192,7 +192,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 			name: "Testing for failures 3",
 			configuration: &config.Configuration{
 				AASApiUrl:          "http://localhost" + port + "/aas",
-				AttestationService: config.AttestationConfig{AttestationType: "HVS", AttestationURL: "http://localhost" + port + "/mtwilson/v2"},
+				AttestationService: config.AttestationConfig{HVSBaseURL: "http://localhost" + port + "/mtwilson/v2"},
 			},
 			wantErr: true,
 		},
@@ -202,7 +202,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 			configuration: &config.Configuration{
 				AASApiUrl: "http://localhost" + port + "/aas",
 				AttestationService: config.AttestationConfig{
-					AttestationType: constants.DefaultAttestationType, AttestationURL: "http://localhost" + port + "/mtwilson/v2"},
+					HVSBaseURL: "http://localhost" + port + "/mtwilson/v2"},
 				Endpoint: config.Endpoint{
 					Type:     "OPENSTACK",
 					URL:      "http://localhost" + port + "/openstack/api/",
@@ -219,7 +219,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 			configuration: &config.Configuration{
 				AASApiUrl: "http://localhost" + port + "/aas",
 				AttestationService: config.AttestationConfig{
-					AttestationType: constants.AttestationTypeSGX, AttestationURL: "http://localhost" + port + "/sgx-hvs/v2"},
+					HVSBaseURL: "http://localhost" + port + "/sgx-hvs/v2"},
 				Endpoint: config.Endpoint{
 					Type:     "OPENSTACK",
 					URL:      "http://localhost" + port + "/openstack/api/",
